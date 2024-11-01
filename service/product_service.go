@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/Muhfikri12/project-app-inventory-golang-fikri/model"
@@ -18,17 +17,6 @@ func NewProductService(repoProduct repository.ProductRepositoryDB) *ProductServi
 }
 
 func (ps *ProductService) InputDataProduct(name, code string, stocks, categoryId int) error {
-	if name == "" {
-		return errors.New("name is required")
-	}
-
-	if code == "" {
-		return errors.New("code is required")
-	}
-
-	if stocks == 0 {
-		return errors.New("value should be more than 0")
-	}
 
 	product := model.Products {
 		Name: name,

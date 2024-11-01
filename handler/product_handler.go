@@ -31,6 +31,18 @@ func AddProduct(db *sql.DB) {
 		return
 	}
 
+	if products.Name == "" || products.Code == "" || products.Stocks == 0 || products.CategoryID == 0 {
+		response := model.Response{
+			StatusCode: 400,
+			Message:    "Invalid input: All fields are required",
+			Data:       nil,
+		}
+		jsonData, _ := json.MarshalIndent(response, "", "  ")
+		
+		fmt.Println(string(jsonData))
+		return
+	}
+
 	repo := repository.NewProductRepository(db)
 	productService := service.NewProductService(repo)
 
