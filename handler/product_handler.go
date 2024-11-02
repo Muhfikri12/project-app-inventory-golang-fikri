@@ -152,7 +152,7 @@ func GetProducts(db *sql.DB) {
 	}
 
 	limit := pagination.Limit
-	if limit == 0 {
+	if limit <= 10 {
 		limit = 10
 	}
 

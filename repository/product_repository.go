@@ -60,7 +60,7 @@ func (p *ProductRepositoryDB) GetAllDataProducts(page, limit int) ([]model.Pagin
 
 	for rows.Next() {
 		var product model.Products
-		err := rows.Scan(&product.ID, &product.Name,&product.Code, &product.Stocks, &product.CategoryID)
+		err := rows.Scan(&product.ID, &product.Name, &product.Code, &product.Stocks, &product.CategoryID)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -103,7 +103,7 @@ func (p *ProductRepositoryDB) GetProductByID(productID int) (model.Products, err
 	return product, nil
 }
 
-func (t *ProductRepositoryDB) DeleteProduct (id int) error{
+func (t *ProductRepositoryDB) DeleteProduct(id int) error{
 	
 	query := `DELETE FROM products WHERE id=$1`
 

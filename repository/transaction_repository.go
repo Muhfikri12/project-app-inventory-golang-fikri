@@ -64,3 +64,41 @@ func (i *TransactionRepositoryDB) ChectExistsData(id int) (bool, error) {
 
 	return exists, nil
 }
+
+func (p *TransactionRepositoryDB) GetAllDataTransaction(page, limit int) ([]model.Transaction, error) {
+	offset := (page - 1) * limit
+	query := `SELECT id, product_id, qty, is_out FROM transactions LIMIT $1 OFFSET $2`
+
+	rows, err := p.DB.Query(query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var transactions []model.Transaction
+	for rows.Next() {
+		var transaction model.Transaction
+		err := rows.Scan(&transaction.ID, &transaction.ProductId, &transaction.Qty, &transaction.IsOut)
+		if err != nil {
+			return nil, err
+		}
+		transactions = append(transactions, transaction)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
+}
+
+
+func (p *TransactionRepositoryDB) CountTotalItems() (int, error) {
+	var totalItems int
+	query := `SELECT COUNT(*) FROM transactions`
+	err := p.DB.QueryRow(query).Scan(&totalItems)
+	if err != nil {
+		return 0, err
+	}
+	return totalItems, nil
+}

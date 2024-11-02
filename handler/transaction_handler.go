@@ -121,3 +121,61 @@ func DeleteTransaction(db *sql.DB) {
     jsonData, _ := json.MarshalIndent(response, "", " ")
     fmt.Println(string(jsonData))
 }
+
+func GetTransactions(db *sql.DB) {
+	file, err := os.Open("body.json")
+	if err != nil {
+		fmt.Println("Error opening body.json:", err)
+		return
+	}
+	defer file.Close()
+
+	var pagination model.Pagination
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&pagination)
+	if err != nil && err != io.EOF {
+		fmt.Println("Error decoding JSON:", err)
+		return
+	}
+
+	page := pagination.Page
+	if page == 0 {
+		page = 1
+	}
+
+	limit := pagination.Limit
+	if limit <= 10 {
+		limit = 10
+	}
+
+	repo := repository.NewTransactionRepository(db)
+	transactionService := service.NewTransactionServiceDelete(repo)
+
+	totalItems, totalPages, transactions, err := transactionService.GetDataTransactions(page, limit)
+	if err != nil {
+		response := model.Response{
+			StatusCode: 500,
+			Message:    "Error fetching Data Transactions: " + err.Error(),
+			Page:       page,
+			Limit:      limit,
+			TotalItems: totalItems,
+			TotalPages: totalPages,
+			Data:       nil,
+		}
+		jsonData, _ := json.MarshalIndent(response, "", " ")
+		fmt.Println(string(jsonData))
+		return
+	}
+
+	response := model.Response{
+		StatusCode: 200,
+		Message:    "Data retrieved successfully",
+		Page:       page,
+		Limit:      limit,
+		TotalItems: totalItems,
+		TotalPages: totalPages,
+		Data:       transactions,
+	}
+	jsonData, _ := json.MarshalIndent(response, "", " ")
+	fmt.Println(string(jsonData))
+}

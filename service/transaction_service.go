@@ -73,3 +73,19 @@ func (ts *TransactionService) DeletingTransaction(id int) ( error) {
 
 	return nil
 }
+
+func (ts *TransactionService) GetDataTransactions(page, limit int) (int, int, []model.Transaction, error) {
+	totalItems, err := ts.RepoTransaction.CountTotalItems()
+	if err != nil {
+		return 0, 0, nil, err
+	}
+
+	totalPages := (totalItems + limit - 1) / limit
+
+	transactions, err := ts.RepoTransaction.GetAllDataTransaction(page, limit)
+	if err != nil {
+		return 0, 0, nil, err
+	}
+
+	return totalItems, totalPages, transactions, nil
+}
