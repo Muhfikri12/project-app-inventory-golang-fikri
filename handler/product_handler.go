@@ -31,7 +31,7 @@ func AddProduct(db *sql.DB) {
 		return
 	}
 
-	if products.Name == "" || products.Code == "" || products.Stocks == 0 || products.CategoryID == 0 {
+	if products.Name == "" || products.Code == "" || products.Stocks <= 0 || products.CategoryID == 0 {
 		response := model.Response{
 			StatusCode: 400,
 			Message:    "Invalid input: All fields are required",
@@ -46,7 +46,7 @@ func AddProduct(db *sql.DB) {
 	repo := repository.NewProductRepository(db)
 	productService := service.NewProductService(repo)
 
-	product := productService.InputDataProduct(products.Name, products.Code, products.Stocks, products.CategoryID)
+	product, err := productService.InputDataProduct(products.Name, products.Code, products.Stocks, products.CategoryID)
 	if err != nil {
 		response := model.Response{
 			StatusCode: 400,
@@ -146,24 +146,28 @@ func GetProducts(db *sql.DB) {
 		return
 	}
 
-	pageNumber := pagination.PageNumber
-	if pageNumber == 0 {
-		pageNumber = 1
+	page := pagination.Page
+	if page == 0 {
+		page = 1
 	}
 
-	pageSize := pagination.PageSize
-	if pageSize == 0 {
-		pageSize = 10
+	limit := pagination.Limit
+	if limit == 0 {
+		limit = 10
 	}
 
 	repo := repository.NewProductRepository(db)
 	productService := service.NewProductService(repo)
 
-	products, err := productService.GetDataProducts(pageNumber, pageSize)
+	totalItems, totalPages, products, err := productService.GetDataProducts(page, limit)
 	if err != nil {
 		response := model.Response{
 			StatusCode: 500,
 			Message:    "Error fetching Data Products",
+			Page:       page,
+			Limit:      limit,
+			TotalItems: totalItems,
+			TotalPages: totalPages,
 			Data:       nil,
 		}
 		jsonData, _ := json.MarshalIndent(response, "", " ")
@@ -173,7 +177,11 @@ func GetProducts(db *sql.DB) {
 
 	response := model.Response{
 		StatusCode: 200,
-		Message:    "Products fetched successfully",
+		Message:    "Data retrieved successfully",
+		Page:       page,
+		Limit:      limit,
+		TotalItems: totalItems,
+		TotalPages: totalPages,
 		Data:       products,
 	}
 	jsonData, _ := json.MarshalIndent(response, "", " ")

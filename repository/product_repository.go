@@ -42,17 +42,19 @@ func (p *ProductRepositoryDB) UpdateProduct(product *model.Products) error {
 }
 
 
-func (p *ProductRepositoryDB) GetAllDataProducts(pageNumber, pageSize int) ([]model.Products, error) {
-	offset := (pageNumber - 1) * pageSize
+func (p *ProductRepositoryDB) GetAllDataProducts(page, limit int) ([]model.Pagination,[]model.Products, error) {
+	offset := (page - 1) * limit
 	query := `SELECT id, name, code, stocks, category_id FROM products LIMIT $1 OFFSET $2`
 
-	rows, err := p.DB.Query(query, pageSize, offset)
+	rows, err := p.DB.Query(query, limit, offset)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	defer rows.Close()
+
+	var pagination []model.Pagination
 
 	var products []model.Products
 
@@ -60,19 +62,29 @@ func (p *ProductRepositoryDB) GetAllDataProducts(pageNumber, pageSize int) ([]mo
 		var product model.Products
 		err := rows.Scan(&product.ID, &product.Name,&product.Code, &product.Stocks, &product.CategoryID)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		products = append(products, product)
 	}
 
 	if err = rows.Err(); err != nil {
-        return nil, err
+        return nil, nil, err
     }
 
 
 
-	return products, nil
+	return pagination, products, nil
+}
+
+func (p *ProductRepositoryDB) CountTotalItems() (int, error) {
+	var totalItems int
+	query := `SELECT COUNT(*) FROM products`
+	err := p.DB.QueryRow(query).Scan(&totalItems)
+	if err != nil {
+		return 0, err
+	}
+	return totalItems, nil
 }
 
 func (p *ProductRepositoryDB) GetProductByID(productID int) (model.Products, error) {

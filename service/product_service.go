@@ -16,23 +16,23 @@ func NewProductService(repoProduct repository.ProductRepositoryDB) *ProductServi
 	return &ProductService{RepoProduct: repoProduct}
 }
 
-func (ps *ProductService) InputDataProduct(name, code string, stocks, categoryId int) error {
+func (ps *ProductService) InputDataProduct(name, code string, stocks, categoryId int) (*model.Products, error) {
 
-	product := model.Products {
+	product := &model.Products {
 		Name: name,
 		Code: code,
 		Stocks: stocks,
 		CategoryID: categoryId,
 	}
 
-	err := ps.RepoProduct.CreateProduct(&product)
+	err := ps.RepoProduct.CreateProduct(product)
 	if err != nil {
 		fmt.Println("Error: ", err)
 	}
 
 	fmt.Println("Berhasil tambah data Produk dengan id", product.ID)
 
-	return nil
+	return product, nil
 
 }
 
@@ -46,12 +46,18 @@ func (ps *ProductService) UpdateDataProduct(product *model.Products) error {
 	return nil
 }
 
-func (ps *ProductService) GetDataProducts(pageNumber, pageSize int) ([]model.Products, error) {
-	
-	products, err := ps.RepoProduct.GetAllDataProducts(pageNumber, pageSize)
+func (ps *ProductService) GetDataProducts(page, limit int) (int, int, []model.Products, error) {
+	totalItems, err := ps.RepoProduct.CountTotalItems()
 	if err != nil {
-		return nil, err
+		return 0, 0, nil, err
 	}
 
-	return products, nil
+	totalPages := (totalItems + limit - 1) / limit
+
+	_, products, err := ps.RepoProduct.GetAllDataProducts(page, limit)
+	if err != nil {
+		return 0, 0, nil, err
+	}
+
+	return totalItems, totalPages, products, nil
 }
