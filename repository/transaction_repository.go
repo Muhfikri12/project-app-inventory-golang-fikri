@@ -39,3 +39,28 @@ func (t *TransactionRepositoryDB) CreateTransaction(transaction *model.Transacti
 
 	return tx.Commit()
 }
+
+func (t *TransactionRepositoryDB) DeleteTransaction (id int) error{
+	
+	query := `DELETE FROM transactions WHERE id=$1`
+
+	_, err := t.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (i *TransactionRepositoryDB) ChectExistsData(id int) (bool, error) {
+	
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM transactions WHERE id=$1)`
+	err := i.DB.QueryRow(query, id).Scan(&exists)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}

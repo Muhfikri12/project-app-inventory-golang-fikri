@@ -21,6 +21,10 @@ func NewTransactionService(repoTransaction repository.TransactionRepositoryDB, r
 	
 }
 
+func NewTransactionServiceDelete(DeleteTransaction repository.TransactionRepositoryDB) *TransactionService {
+	return &TransactionService{RepoTransaction: DeleteTransaction}
+}
+
 func (ts *TransactionService) InputDataTransaction(productID, qty int, isOut bool) (*model.Transaction, error) {
 	product, err := ts.RepoProduct.GetProductByID(productID)
 	if err != nil {
@@ -49,4 +53,23 @@ func (ts *TransactionService) InputDataTransaction(productID, qty int, isOut boo
 	}
 
 	return transaction, nil
+}
+
+func (ts *TransactionService) DeletingTransaction(id int) ( error) {
+	
+	exists, err := ts.RepoTransaction.ChectExistsData(id)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return errors.New("transaction not found")
+	}
+
+	err = ts.RepoTransaction.DeleteTransaction(id)
+	if err != nil {
+		return errors.New("failed to delete transaction: " + err.Error())
+	}
+
+	return nil
 }

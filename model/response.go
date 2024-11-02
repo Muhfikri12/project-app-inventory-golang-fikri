@@ -9,3 +9,9 @@ type Response struct {
 	TotalPages int
 	Data interface{}
 }
+
+type ResponseCreate struct {
+	StatusCode int
+	Message string
+	Data interface{}
+}

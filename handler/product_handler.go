@@ -32,7 +32,7 @@ func AddProduct(db *sql.DB) {
 	}
 
 	if products.Name == "" || products.Code == "" || products.Stocks <= 0 || products.CategoryID == 0 {
-		response := model.Response{
+		response := model.ResponseCreate{
 			StatusCode: 400,
 			Message:    "Invalid input: All fields are required",
 			Data:       nil,
@@ -48,7 +48,7 @@ func AddProduct(db *sql.DB) {
 
 	product, err := productService.InputDataProduct(products.Name, products.Code, products.Stocks, products.CategoryID)
 	if err != nil {
-		response := model.Response{
+		response := model.ResponseCreate{
 			StatusCode: 400,
 			Message:    "Error adding product",
 			Data:       nil,
@@ -64,8 +64,8 @@ func AddProduct(db *sql.DB) {
 		return
 	}
 
-	response := model.Response{
-		StatusCode: 200,
+	response := model.ResponseCreate{
+		StatusCode: 201,
 		Message:    "Product added successfully",
 		Data:       product,
 	}
@@ -96,7 +96,7 @@ func UpdateProduct(db *sql.DB) {
 	}
 
 	if product.ID == 0 {
-		response := model.Response{
+		response := model.ResponseCreate{
 			StatusCode: 400,
 			Message:    "Product ID is required",
 			Data:       nil,
@@ -111,7 +111,7 @@ func UpdateProduct(db *sql.DB) {
 
 	err = productService.UpdateDataProduct(&product)
 	if err != nil {
-		response := model.Response{
+		response := model.ResponseCreate{
 			StatusCode: 400,
 			Message:    err.Error(),
 			Data:       nil,
@@ -121,7 +121,7 @@ func UpdateProduct(db *sql.DB) {
 		return
 	}
 
-	response := model.Response{
+	response := model.ResponseCreate{
 		StatusCode: 200,
 		Message:    "Product updated successfully",
 		Data:       product,

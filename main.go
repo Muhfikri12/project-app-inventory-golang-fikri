@@ -32,5 +32,9 @@ func main() {
 		handler.GetProducts(db)
 	case "add/transaction":
 		handler.AddTransaction(db)
+	case "add/inventory":
+		handler.Inventory(db)
+	case "delete/transaction":
+		handler.DeleteTransaction(db)
 	}
 }
