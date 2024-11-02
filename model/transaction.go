@@ -2,7 +2,7 @@ package model
 
 type Transaction struct {
 	ID int
-	ProductId int
-	Qty int
-	IsOut bool
+	ProductId int `json:"product_id"`
+	Qty int	`json:"qty"`
+	IsOut bool `json:"is_out"`
 }

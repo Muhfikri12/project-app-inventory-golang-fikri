@@ -87,6 +87,16 @@ func (p *ProductRepositoryDB) CountTotalItems() (int, error) {
 	return totalItems, nil
 }
 
+func (p *ProductRepositoryDB) CountTotalItemsless10() (int, error) {
+	var totalItems int
+	query := `SELECT COUNT(*) FROM products WHERE stocks < 10`
+	err := p.DB.QueryRow(query).Scan(&totalItems)
+	if err != nil {
+		return 0, err
+	}
+	return totalItems, nil
+}
+
 func (p *ProductRepositoryDB) GetProductByID(productID int) (model.Products, error) {
 	query := `SELECT id, name, code, stocks, category_id FROM products WHERE id = $1`
 
@@ -159,5 +169,36 @@ func (r *ProductRepositoryDB) FilterProducts(name, code string, categoryID *int)
     }
 
     return products, nil
+}
+
+func (p *ProductRepositoryDB) GetAllDataProductsLess10(page, limit int) ([]model.Products, error) {
+	offset := (page - 1) * limit
+	query := `SELECT id, name, code, stocks, category_id FROM products WHERE stocks < 10 LIMIT $1 OFFSET $2`
+
+	rows, err := p.DB.Query(query, limit, offset)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var products []model.Products
+
+	for rows.Next() {
+		var product model.Products
+		err := rows.Scan(&product.ID, &product.Name, &product.Code, &product.Stocks, &product.CategoryID)
+		if err != nil {
+			return nil, err
+		}
+
+		products = append(products, product)
+	}
+
+	if err = rows.Err(); err != nil {
+        return nil, err
+    }
+
+	return products, nil
 }
 

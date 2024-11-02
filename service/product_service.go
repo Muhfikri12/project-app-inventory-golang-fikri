@@ -37,9 +37,18 @@ func (ps *ProductService) InputDataProduct(name, code string, stocks, categoryId
 
 }
 
-func (ps *ProductService) UpdateDataProduct(product *model.Products) error {
+func (ps *ProductService) UpdateDataProduct(product *model.Products, id int) error {
 
-	err := ps.RepoProduct.UpdateProduct(product)
+	exists, err := ps.RepoProduct.ChectExistsData(id)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return errors.New("product not found")
+	}
+
+	err = ps.RepoProduct.UpdateProduct(product)
 	if err != nil {
 		return fmt.Errorf("error updating product: %w", err)
 	}
@@ -91,4 +100,20 @@ func (ps *ProductService) FilterProducts(name, code string, categoryID *int) ([]
     }
 
     return products, nil
+}
+
+func (ps *ProductService) GetDataProductsLess10(page, limit int) (int, int, []model.Products, error) {
+	totalItems, err := ps.RepoProduct.CountTotalItemsless10()
+	if err != nil {
+		return 0, 0, nil, err
+	}
+
+	totalPages := (totalItems + limit - 1) / limit
+
+	products, err := ps.RepoProduct.GetAllDataProductsLess10(page, limit)
+	if err != nil {
+		return 0, 0, nil, err
+	}
+
+	return totalItems, totalPages, products, nil
 }

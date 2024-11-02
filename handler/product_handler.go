@@ -109,7 +109,7 @@ func UpdateProduct(db *sql.DB) {
 	repo := repository.NewProductRepository(db)
 	productService := service.NewProductService(repo)
 
-	err = productService.UpdateDataProduct(&product)
+	err = productService.UpdateDataProduct(&product, product.ID)
 	if err != nil {
 		response := model.ResponseCreate{
 			StatusCode: 400,
@@ -311,4 +311,62 @@ func FilterProducts(db *sql.DB) {
 
     jsonData, _ := json.MarshalIndent(response, "", " ")
     fmt.Println(string(jsonData))
+}
+
+func GetProductsless10(db *sql.DB) {
+	file, err := os.Open("body.json")
+	if err != nil {
+		fmt.Println("Error opening body.json:", err)
+		return
+	}
+	defer file.Close()
+
+	var pagination model.Pagination
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&pagination)
+	if err != nil && err != io.EOF {
+		fmt.Println("Error decoding JSON:", err)
+		return
+	}
+
+	page := pagination.Page
+	if page == 0 {
+		page = 1
+	}
+
+	limit := pagination.Limit
+	if limit <= 10 {
+		limit = 10
+	}
+
+	repo := repository.NewProductRepository(db)
+	productService := service.NewProductService(repo)
+
+	totalItems, totalPages, products, err := productService.GetDataProductsLess10(page, limit)
+	if err != nil {
+		response := model.Response{
+			StatusCode: 500,
+			Message:    "Error fetching Data Products",
+			Page:       page,
+			Limit:      limit,
+			TotalItems: totalItems,
+			TotalPages: totalPages,
+			Data:       nil,
+		}
+		jsonData, _ := json.MarshalIndent(response, "", " ")
+		fmt.Println(string(jsonData))
+		return
+	}
+
+	response := model.Response{
+		StatusCode: 200,
+		Message:    "Data retrieved successfully",
+		Page:       page,
+		Limit:      limit,
+		TotalItems: totalItems,
+		TotalPages: totalPages,
+		Data:       products,
+	}
+	jsonData, _ := json.MarshalIndent(response, "", " ")
+	fmt.Println(string(jsonData))
 }

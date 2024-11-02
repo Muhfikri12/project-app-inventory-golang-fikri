@@ -51,6 +51,10 @@ func main() {
 		handler.FilterProducts(db)
 	case "transactions":
 		handler.GetTransactions(db)
+	case "add/category":
+		handler.AddCategory(db)
+	case "product/less10":
+		handler.GetProductsless10(db)
 	case "logout":
 		handler.Logout(db)
 	}
