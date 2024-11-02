@@ -36,5 +36,7 @@ func main() {
 		handler.Inventory(db)
 	case "delete/transaction":
 		handler.DeleteTransaction(db)
+	case "delete/product":
+		handler.DeleteProduct(db)
 	}
 }

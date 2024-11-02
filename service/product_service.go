@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/Muhfikri12/project-app-inventory-golang-fikri/model"
@@ -60,4 +61,24 @@ func (ps *ProductService) GetDataProducts(page, limit int) (int, int, []model.Pr
 	}
 
 	return totalItems, totalPages, products, nil
+}
+
+
+func (ts *ProductService) DeletingProduct(id int) ( error) {
+	
+	exists, err := ts.RepoProduct.ChectExistsData(id)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return errors.New("product not found")
+	}
+
+	err = ts.RepoProduct.DeleteProduct(id)
+	if err != nil {
+		return errors.New("failed to delete product: " + err.Error())
+	}
+
+	return nil
 }

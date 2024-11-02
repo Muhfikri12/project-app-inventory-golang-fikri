@@ -187,3 +187,68 @@ func GetProducts(db *sql.DB) {
 	jsonData, _ := json.MarshalIndent(response, "", " ")
 	fmt.Println(string(jsonData))
 }
+
+func DeleteProduct(db *sql.DB) {
+    var product model.Products
+
+    file, err := os.Open("body.json")
+    if err != nil {
+        response := model.ResponseCreate{
+            StatusCode: 500,
+            Message:    "Error opening body.json: " + err.Error(),
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+    defer file.Close()
+
+    decoder := json.NewDecoder(file)
+    err = decoder.Decode(&product)
+    if err != nil && err != io.EOF {
+        response := model.ResponseCreate{
+            StatusCode: 400,
+            Message:    "Error decoding JSON: " + err.Error(),
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+
+    if product.ID <= 0 {
+        response := model.ResponseCreate{
+            StatusCode: 400,
+            Message:    "Invalid input: id is required",
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+
+    repo := repository.NewProductRepository(db)
+    service := service.NewProductService(repo)
+
+    err = service.DeletingProduct(product.ID) 
+    if err != nil {
+        response := model.ResponseCreate{
+            StatusCode: 400,
+            Message:    "Error deleting product: " + err.Error(),
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+
+    response := model.ResponseCreate{
+        StatusCode: 200,
+        Message:    "Successfully deleted product",
+        Data:       nil,
+    }
+
+    jsonData, _ := json.MarshalIndent(response, "", " ")
+    fmt.Println(string(jsonData))
+}

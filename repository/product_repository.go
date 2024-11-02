@@ -103,3 +103,27 @@ func (p *ProductRepositoryDB) GetProductByID(productID int) (model.Products, err
 	return product, nil
 }
 
+func (t *ProductRepositoryDB) DeleteProduct (id int) error{
+	
+	query := `DELETE FROM products WHERE id=$1`
+
+	_, err := t.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (i *ProductRepositoryDB) ChectExistsData(id int) (bool, error) {
+	
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM products WHERE id=$1)`
+	err := i.DB.QueryRow(query, id).Scan(&exists)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
