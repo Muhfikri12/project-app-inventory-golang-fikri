@@ -40,5 +40,7 @@ func main() {
 		handler.DeleteProduct(db)
 	case "delete/inventory":
 		handler.DeleteInventory(db)
+	case "search/product":
+		handler.FilterProducts(db)
 	}
 }

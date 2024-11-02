@@ -252,3 +252,63 @@ func DeleteProduct(db *sql.DB) {
     jsonData, _ := json.MarshalIndent(response, "", " ")
     fmt.Println(string(jsonData))
 }
+
+func FilterProducts(db *sql.DB) {
+    var product struct {
+        ID int `json:"id"`
+		Name string `json:"name"`
+		Code string `json:"code"`
+		Stocks int `json:"stocks"`
+        CategoryID *int  `json:"category_id"`
+    }
+
+    file, err := os.Open("body.json")
+    if err != nil {
+        response := model.ResponseCreate{
+            StatusCode: 500,
+            Message:    "Error opening body.json: " + err.Error(),
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+    defer file.Close()
+
+    decoder := json.NewDecoder(file)
+    err = decoder.Decode(&product)
+    if err != nil && err != io.EOF {
+        response := model.ResponseCreate{
+            StatusCode: 400,
+            Message:    "Error decoding JSON: " + err.Error(),
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+
+    repo := repository.NewProductRepository(db)
+    productService := service.NewProductService(repo)
+
+    products, err := productService.FilterProducts(product.Name, product.Code, product.CategoryID)
+    if err != nil {
+        response := model.ResponseCreate{
+            StatusCode: 400,
+            Message:    "Error filtering products: " + err.Error(),
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+
+    response := model.ResponseCreate{
+        StatusCode: 200,
+        Message:    "Successfully retrieved products",
+        Data:       products,
+    }
+
+    jsonData, _ := json.MarshalIndent(response, "", " ")
+    fmt.Println(string(jsonData))
+}

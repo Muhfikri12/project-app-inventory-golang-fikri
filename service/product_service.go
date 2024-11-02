@@ -82,3 +82,13 @@ func (ts *ProductService) DeletingProduct(id int) ( error) {
 
 	return nil
 }
+
+
+func (ps *ProductService) FilterProducts(name, code string, categoryID *int) ([]model.Products, error) {
+    products, err := ps.RepoProduct.FilterProducts(name, code, categoryID)
+    if err != nil {
+        return nil, errors.New("could not retrieve products: " + err.Error())
+    }
+
+    return products, nil
+}

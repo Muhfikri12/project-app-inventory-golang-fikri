@@ -127,3 +127,37 @@ func (i *ProductRepositoryDB) ChectExistsData(id int) (bool, error) {
 
 	return exists, nil
 }
+
+func (r *ProductRepositoryDB) FilterProducts(name, code string, categoryID *int) ([]model.Products, error) {
+    var products []model.Products
+
+    query := `
+    SELECT p.id, p.name, p.code, p.stocks, p.category_id
+    FROM products p
+    WHERE 
+        (p.name ILIKE '%' || COALESCE(NULLIF($1, ''), '') || '%' OR $1 IS NULL)
+        AND (p.code ILIKE '%' || COALESCE(NULLIF($2, ''), '') || '%' OR $2 IS NULL)
+        AND (p.category_id = $3 OR $3 IS NULL);
+    `
+
+    rows, err := r.DB.Query(query, name, code, categoryID)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var product model.Products
+        if err := rows.Scan(&product.ID, &product.Name, &product.Code,&product.Stocks, &product.CategoryID); err != nil {
+            return nil, err
+        }
+        products = append(products, product)
+    }
+
+    if err := rows.Err(); err != nil {
+        return nil, err
+    }
+
+    return products, nil
+}
+
