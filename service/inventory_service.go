@@ -43,3 +43,22 @@ func (is *InventoryService) InputDataInventory(productId, row, part int) (*model
 
 	return inventory, nil
 }
+
+func (ts *InventoryService) DeletingInventory(id int) ( error) {
+	
+	exists, err := ts.RepoInventory.CheckId(id)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return errors.New("transaction not found")
+	}
+
+	err = ts.RepoInventory.DeleteInventory(id)
+	if err != nil {
+		return errors.New("failed to delete inventory: " + err.Error())
+	}
+
+	return nil
+}

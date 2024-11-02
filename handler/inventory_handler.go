@@ -69,3 +69,68 @@ func Inventory(db *sql.DB)  {
 	fmt.Println(string(jsonData))
 
 }
+
+func DeleteInventory(db *sql.DB) {
+    var inventory model.Inventory
+
+    file, err := os.Open("body.json")
+    if err != nil {
+        response := model.ResponseCreate{
+            StatusCode: 500,
+            Message:    "Error opening body.json: " + err.Error(),
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+    defer file.Close()
+
+    decoder := json.NewDecoder(file)
+    err = decoder.Decode(&inventory)
+    if err != nil && err != io.EOF {
+        response := model.ResponseCreate{
+            StatusCode: 400,
+            Message:    "Error decoding JSON: " + err.Error(),
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+
+    if inventory.ID <= 0 {
+        response := model.ResponseCreate{
+            StatusCode: 400,
+            Message:    "Invalid input: id is required",
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+
+    repo := repository.NewInventoryRepository(db)
+    service := service.NewInventoryService(repo)
+
+    err = service.DeletingInventory(inventory.ID) 
+    if err != nil {
+        response := model.ResponseCreate{
+            StatusCode: 400,
+            Message:    "Error deleting inventory: " + err.Error(),
+            Data:       nil,
+        }
+        jsonData, _ := json.MarshalIndent(response, "", " ")
+        fmt.Println(string(jsonData))
+        return
+    }
+
+    response := model.ResponseCreate{
+        StatusCode: 200,
+        Message:    "Successfully deleted inventory",
+        Data:       nil,
+    }
+
+    jsonData, _ := json.MarshalIndent(response, "", " ")
+    fmt.Println(string(jsonData))
+}

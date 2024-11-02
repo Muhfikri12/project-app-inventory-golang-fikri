@@ -40,7 +40,7 @@ func (t *TransactionRepositoryDB) CreateTransaction(transaction *model.Transacti
 	return tx.Commit()
 }
 
-func (t *TransactionRepositoryDB) DeleteTransaction (id int) error{
+func (t *TransactionRepositoryDB) DeleteTransaction(id int) error{
 	
 	query := `DELETE FROM transactions WHERE id=$1`
 

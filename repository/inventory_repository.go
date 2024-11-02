@@ -38,12 +38,37 @@ func (i *InventoryRepositoryDB) UpdateInventory(inventory *model.Inventory) erro
 	return nil
 }
 
+func (t *InventoryRepositoryDB) DeleteInventory(id int) error{
+	
+	query := `DELETE FROM inventories WHERE id=$1`
+
+	_, err := t.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 
 func (i *InventoryRepositoryDB) ChectExistData(ProductId int) (bool, error) {
 	
 	var exists bool
 	query := `SELECT EXISTS(SELECT 1 FROM inventories WHERE product_id=$1)`
 	err := i.DB.QueryRow(query, ProductId).Scan(&exists)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
+func (i *InventoryRepositoryDB) CheckId(id int) (bool, error) {
+	
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM inventories WHERE id=$1)`
+	err := i.DB.QueryRow(query, id).Scan(&exists)
 
 	if err != nil {
 		return false, err
