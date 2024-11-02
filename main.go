@@ -21,6 +21,13 @@ func main() {
 	fmt.Print("masukkan endpoint : ")
 	fmt.Scan(&endpoint)
 
+	if endpoint != "login" {
+		if !handler.CheckAnyUserActive(db) {
+			fmt.Println("Silakan login terlebih dahulu.")
+			return
+		}
+	}
+
 	switch endpoint {
 	case "login":
 		handler.Login(db)
@@ -44,5 +51,7 @@ func main() {
 		handler.FilterProducts(db)
 	case "transactions":
 		handler.GetTransactions(db)
+	case "logout":
+		handler.Logout(db)
 	}
 }

@@ -31,3 +31,26 @@ func (us *UserService) LoginService(user model.Users) (*model.Users, error) {
 
 	return users, nil
 }
+
+func (us *UserService) CheckIfAnyUserIsActive() (bool, error) {
+	return us.RepoUser.HasActiveUser()
+}
+
+func (us *UserService) LogoutService(user model.Users) (*model.Users, error) {
+	
+	users, err := us.RepoUser.UserLogout(user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	users.Status = false
+
+	err = us.RepoUser.UpdateStatus(users)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
