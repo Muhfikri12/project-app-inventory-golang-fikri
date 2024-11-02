@@ -24,7 +24,9 @@ func main() {
 	switch endpoint {
 	case "login":
 		handler.Login(db)
-	case "addProducts":
+	case "addProduct":
 		handler.AddProduct(db)
+	case "updateProduct":
+		handler.UpdateProduct(db)
 	}
 }

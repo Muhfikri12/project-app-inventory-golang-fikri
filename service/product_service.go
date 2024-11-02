@@ -35,3 +35,13 @@ func (ps *ProductService) InputDataProduct(name, code string, stocks, categoryId
 	return nil
 
 }
+
+func (ps *ProductService) UpdateDataProduct(product *model.Products) error {
+
+	err := ps.RepoProduct.UpdateProduct(product)
+	if err != nil {
+		return fmt.Errorf("error updating product: %w", err)
+	}
+
+	return nil
+}

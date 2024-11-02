@@ -38,7 +38,7 @@ func AddProduct(db *sql.DB) {
 			Data:       nil,
 		}
 		jsonData, _ := json.MarshalIndent(response, "", "  ")
-		
+
 		fmt.Println(string(jsonData))
 		return
 	}
@@ -75,5 +75,62 @@ func AddProduct(db *sql.DB) {
 		return
 	}
 
+	fmt.Println(string(jsonData))
+}
+
+func UpdateProduct(db *sql.DB) {
+	product := model.Products{}
+
+	// Membuka file JSON
+	file, err := os.Open("body.json")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
+
+	// Decode JSON
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&product)
+	if err != nil && err != io.EOF {
+		fmt.Println("Error decoding JSON:", err)
+		return
+	}
+
+	// Validasi apakah ID produk sudah ada
+	if product.ID == 0 {
+		response := model.Response{
+			StatusCode: 400,
+			Message:    "Product ID is required",
+			Data:       nil,
+		}
+		jsonData, _ := json.MarshalIndent(response, "", "  ")
+		fmt.Println(string(jsonData))
+		return
+	}
+
+	// Memanggil service untuk mengupdate produk
+	repo := repository.NewProductRepository(db)
+	productService := service.NewProductService(repo)
+
+	err = productService.UpdateDataProduct(&product)
+	if err != nil {
+		response := model.Response{
+			StatusCode: 400,
+			Message:    err.Error(),
+			Data:       nil,
+		}
+		jsonData, _ := json.MarshalIndent(response, "", "  ")
+		fmt.Println(string(jsonData))
+		return
+	}
+
+	// Berhasil mengupdate produk
+	response := model.Response{
+		StatusCode: 200,
+		Message:    "Product updated successfully",
+		Data:       product,
+	}
+	jsonData, _ := json.MarshalIndent(response, "", "  ")
 	fmt.Println(string(jsonData))
 }

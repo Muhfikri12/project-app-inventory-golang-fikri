@@ -1,6 +1,7 @@
 {
-    "name": "",
-    "code": "PRD001",
-    "stocks": 100,
-    "category_id": 1
+    "id": 16,
+    "name": "Update Jam",
+    "code": "UPD123",
+    "stocks": 50,
+    "category_id": 2
 }
