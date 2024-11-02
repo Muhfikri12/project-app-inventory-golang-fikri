@@ -1,4 +1,5 @@
 {
-    "page_number": 2,
-    "page_size": 10
+    "productId": 16,
+    "qty": 10,
+    "isOut": true
 }

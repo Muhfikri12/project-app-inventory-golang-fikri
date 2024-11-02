@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/Muhfikri12/project-app-inventory-golang-fikri/model"
@@ -72,5 +73,21 @@ func (p *ProductRepositoryDB) GetAllDataProducts(pageNumber, pageSize int) ([]mo
 
 
 	return products, nil
+}
+
+func (p *ProductRepositoryDB) GetProductByID(productID int) (model.Products, error) {
+	query := `SELECT id, name, code, stocks, category_id FROM products WHERE id = $1`
+
+	var product model.Products
+	err := p.DB.QueryRow(query, productID).Scan(&product.ID, &product.Name, &product.Code, &product.Stocks, &product.CategoryID)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return product, errors.New("product not found")
+		}
+		return product, err
+	}
+
+	return product, nil
 }
 

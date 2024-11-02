@@ -30,5 +30,7 @@ func main() {
 		handler.UpdateProduct(db)
 	case "products":
 		handler.GetProducts(db)
+	case "add/transaction":
+		handler.AddTransaction(db)
 	}
 }
