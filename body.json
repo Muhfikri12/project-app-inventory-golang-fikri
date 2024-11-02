@@ -1,7 +1,4 @@
 {
-    "id": 16,
-    "name": "Update Jam",
-    "code": "UPD123",
-    "stocks": 50,
-    "category_id": 2
+    "page_number": 2,
+    "page_size": 10
 }

@@ -45,3 +45,13 @@ func (ps *ProductService) UpdateDataProduct(product *model.Products) error {
 
 	return nil
 }
+
+func (ps *ProductService) GetDataProducts(pageNumber, pageSize int) ([]model.Products, error) {
+	
+	products, err := ps.RepoProduct.GetAllDataProducts(pageNumber, pageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}

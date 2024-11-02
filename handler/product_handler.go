@@ -81,7 +81,6 @@ func AddProduct(db *sql.DB) {
 func UpdateProduct(db *sql.DB) {
 	product := model.Products{}
 
-	// Membuka file JSON
 	file, err := os.Open("body.json")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -89,7 +88,6 @@ func UpdateProduct(db *sql.DB) {
 	}
 	defer file.Close()
 
-	// Decode JSON
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&product)
 	if err != nil && err != io.EOF {
@@ -97,7 +95,6 @@ func UpdateProduct(db *sql.DB) {
 		return
 	}
 
-	// Validasi apakah ID produk sudah ada
 	if product.ID == 0 {
 		response := model.Response{
 			StatusCode: 400,
@@ -109,7 +106,6 @@ func UpdateProduct(db *sql.DB) {
 		return
 	}
 
-	// Memanggil service untuk mengupdate produk
 	repo := repository.NewProductRepository(db)
 	productService := service.NewProductService(repo)
 
@@ -125,12 +121,61 @@ func UpdateProduct(db *sql.DB) {
 		return
 	}
 
-	// Berhasil mengupdate produk
 	response := model.Response{
 		StatusCode: 200,
 		Message:    "Product updated successfully",
 		Data:       product,
 	}
 	jsonData, _ := json.MarshalIndent(response, "", "  ")
+	fmt.Println(string(jsonData))
+}
+
+func GetProducts(db *sql.DB) {
+	file, err := os.Open("body.json")
+	if err != nil {
+		fmt.Println("Error opening body.json:", err)
+		return
+	}
+	defer file.Close()
+
+	var pagination model.Pagination
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&pagination)
+	if err != nil && err != io.EOF {
+		fmt.Println("Error decoding JSON:", err)
+		return
+	}
+
+	pageNumber := pagination.PageNumber
+	if pageNumber == 0 {
+		pageNumber = 1
+	}
+
+	pageSize := pagination.PageSize
+	if pageSize == 0 {
+		pageSize = 10
+	}
+
+	repo := repository.NewProductRepository(db)
+	productService := service.NewProductService(repo)
+
+	products, err := productService.GetDataProducts(pageNumber, pageSize)
+	if err != nil {
+		response := model.Response{
+			StatusCode: 500,
+			Message:    "Error fetching Data Products",
+			Data:       nil,
+		}
+		jsonData, _ := json.MarshalIndent(response, "", " ")
+		fmt.Println(string(jsonData))
+		return
+	}
+
+	response := model.Response{
+		StatusCode: 200,
+		Message:    "Products fetched successfully",
+		Data:       products,
+	}
+	jsonData, _ := json.MarshalIndent(response, "", " ")
 	fmt.Println(string(jsonData))
 }

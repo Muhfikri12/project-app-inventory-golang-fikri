@@ -39,3 +39,38 @@ func (p *ProductRepositoryDB) UpdateProduct(product *model.Products) error {
 
 	return nil
 }
+
+
+func (p *ProductRepositoryDB) GetAllDataProducts(pageNumber, pageSize int) ([]model.Products, error) {
+	offset := (pageNumber - 1) * pageSize
+	query := `SELECT id, name, code, stocks, category_id FROM products LIMIT $1 OFFSET $2`
+
+	rows, err := p.DB.Query(query, pageSize, offset)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var products []model.Products
+
+	for rows.Next() {
+		var product model.Products
+		err := rows.Scan(&product.ID, &product.Name,&product.Code, &product.Stocks, &product.CategoryID)
+		if err != nil {
+			return nil, err
+		}
+
+		products = append(products, product)
+	}
+
+	if err = rows.Err(); err != nil {
+        return nil, err
+    }
+
+
+
+	return products, nil
+}
+
