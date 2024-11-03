@@ -56,7 +56,7 @@ func (ps *ProductService) UpdateDataProduct(product *model.Products, id int) err
 	return nil
 }
 
-func (ps *ProductService) GetDataProducts(page, limit int) (int, int, []model.Products, error) {
+func (ps *ProductService) GetDataProducts(page, limit int) (int, int, []model.ProductsIs, error) {
 	totalItems, err := ps.RepoProduct.CountTotalItems()
 	if err != nil {
 		return 0, 0, nil, err

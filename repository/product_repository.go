@@ -42,9 +42,14 @@ func (p *ProductRepositoryDB) UpdateProduct(product *model.Products) error {
 }
 
 
-func (p *ProductRepositoryDB) GetAllDataProducts(page, limit int) ([]model.Pagination,[]model.Products, error) {
+func (p *ProductRepositoryDB) GetAllDataProducts(page, limit int) ([]model.Pagination,[]model.ProductsIs, error) {
 	offset := (page - 1) * limit
-	query := `SELECT id, name, code, stocks, category_id FROM products LIMIT $1 OFFSET $2`
+	query := `
+			SELECT p.id, p.name, p.code, p.stocks, c.name 
+			FROM products p
+			JOIN categories c on p.category_id = c.id
+			LIMIT $1 
+			OFFSET $2`
 
 	rows, err := p.DB.Query(query, limit, offset)
 
@@ -56,11 +61,11 @@ func (p *ProductRepositoryDB) GetAllDataProducts(page, limit int) ([]model.Pagin
 
 	var pagination []model.Pagination
 
-	var products []model.Products
+	var products []model.ProductsIs
 
 	for rows.Next() {
-		var product model.Products
-		err := rows.Scan(&product.ID, &product.Name, &product.Code, &product.Stocks, &product.CategoryID)
+		var product model.ProductsIs
+		err := rows.Scan(&product.ID, &product.Name, &product.Code, &product.Stocks, &product.Category)
 		if err != nil {
 			return nil, nil, err
 		}
